@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Room Light Animation</title>
+<style>
+  :root {
+    --dark-bg: #121212;
+    --dark-text: #e0e0e0;
+    --light-bg: #fff9e6;
+    --light-text: #222222;
+    --bulb-glow: #fff176;
+  }
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+    transition: background-color 0.8s ease, color 0.8s ease;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+  body.light-mode {
+    background-color: var(--light-bg);
+    color: var(--light-text);
+  }
+  .bulb {
+    width: 120px;
+    height: 180px;
+    cursor: pointer;
+    position: relative;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+  }
+  .bulb svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .bulb .glass {
+    fill: #444;
+    transition: fill 0.8s ease;
+    filter: drop-shadow(0 0 3px rgba(0,0,0,0.7));
+  }
+  body.light-mode .bulb .glass {
+    fill: #fff8b0;
+    filter: drop-shadow(0 0 15px var(--bulb-glow));
+  }
+  .bulb .filament {
+    stroke: var(--bulb-glow);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    opacity: 0;
+    filter: drop-shadow(0 0 8px var(--bulb-glow));
+    transition: opacity 0.5s ease;
+    animation: flicker 1.5s infinite alternate;
+  }
+  body.light-mode .bulb .filament {
+    opacity: 1;
+  }
+  .bulb .base {
+    fill: #666;
+    transition: fill 0.8s ease;
+    filter: drop-shadow(0 0 3px rgba(0,0,0,0.7));
+  }
+  body.light-mode .bulb .base {
+    fill: #b3a369;
+    filter: drop-shadow(0 0 8px rgba(179,163,105,0.8));
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .light-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,241,118,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    z-index: -1;
+  }
+  body.light-mode .light-glow {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="bulb" id="bulb" title="Toggle Light" role="button" aria-pressed="false" tabindex="0">
+      <svg viewBox="0 0 64 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="img" aria-label="Light bulb">
+        <ellipse class="glass" cx="32" cy="40" rx="20" ry="30" />
+        <path class="filament" d="M22 40 Q32 20 42 40" />
+        <path class="filament" d="M28 45 Q32 35 36 45" />
+        <rect class="base" x="26" y="70" width="12" height="20" />
+      </svg>
+    </div>
+    <div id="toggle-text" class="toggle-text">Turn On</div>
+    <div class="light-glow"></div>
+  </div>
+<script>
+  const bulb = document.getElementById('bulb');
+  const body = document.body;
+  const lightGlow = document.querySelector('.light-glow');
+  let lightOn = false;
+
+  function updateMode() {
+    const toggleText = document.getElementById('toggle-text');
+    if (lightOn) {
+      body.classList.add('light-mode');
+      bulb.setAttribute('aria-pressed', 'true');
+      toggleText.textContent = 'Turn Off';
+    } else {
+      body.classList.remove('light-mode');
+      bulb.setAttribute('aria-pressed', 'false');
+      toggleText.textContent = 'Turn On';
+    }
+  }
+
+  function toggleLight() {
+    lightOn = !lightOn;
+    updateMode();
+  }
+
+  bulb.addEventListener('click', toggleLight);
+
+  bulb.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleLight();
+    }
+  });
+
+  // Initialize in dark mode with light off
+  updateMode();
+</script>
+<style>
+  .container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .toggle-text {
+    margin-top: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    user-select: none;
+    color: inherit;
+  }
+</style>
+</body>
+</html>
