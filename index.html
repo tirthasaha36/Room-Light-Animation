@@ -108,10 +108,24 @@
     <div id="toggle-text" class="toggle-text">Turn On</div>
     <div class="light-glow"></div>
   </div>
-<script>
+  <script>
   const bulb = document.getElementById('bulb');
   const body = document.body;
   const lightGlow = document.querySelector('.light-glow');
+  // Removed Audio elements with empty data URLs
+  function playBeep(frequency, duration) {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+    oscillator.start();
+    gainNode.gain.setValueAtTime(0.1, context.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration / 1000);
+    oscillator.stop(context.currentTime + duration / 1000);
+  }
   let lightOn = false;
 
   function updateMode() {
@@ -129,6 +143,11 @@
 
   function toggleLight() {
     lightOn = !lightOn;
+    if (lightOn) {
+      playBeep(880, 150); // Higher pitch beep for ON
+    } else {
+      playBeep(440, 150); // Lower pitch beep for OFF
+    }
     updateMode();
   }
 
